@@ -1,14 +1,19 @@
 # 📊 Chi-Square Test (A/B Testing)
 
 ## 📌 Overview
-The **Chi-Square Test** is a statistical method used in A/B testing when dealing with **categorical data** (e.g., Click vs No Click).  
-It helps determine whether the observed differences between groups are **statistically significant** or just due to randomness.
+
+The **Chi-Square Test** is a statistical method used in A/B testing when working with **categorical data**  
+(e.g., Click vs No Click, Survived vs Not Survived).
+
+It helps determine whether the differences between groups are:
+- **Real (statistically significant)**  
+- or just due to **random variation**
 
 ---
 
 ## 🧪 Example: Testing Headlines
 
-We test three different headlines (A, B, C), each shown to 1000 visitors:
+We test three different headlines (A, B, C), each shown to 1000 visitors.
 
 | Headline | Click | No Click | Total |
 |----------|-------|----------|-------|
@@ -16,122 +21,117 @@ We test three different headlines (A, B, C), each shown to 1000 visitors:
 | B        | 8     | 992      | 1000  |
 | C        | 12    | 988      | 1000  |
 
-- Total clicks = **34**  
+- Total clicks = **34**
 - Total visitors = **3000**
 
 ---
 
 ## 📌 Expected Values
 
-Assuming **no real difference** between headlines:
+Assuming there is **no difference between headlines**, we distribute clicks evenly:
 
 - Expected clicks per headline:
-  
-  `34 / 3 ≈ 11.33`
+
+\[
+\frac{34}{3} \approx 11.33
+\]
 
 - Expected no-clicks per headline:
-  
-  `1000 - 11.33 ≈ 988.67`
+
+\[
+1000 - 11.33 \approx 988.67
+\]
 
 ---
 
 ## 📐 Pearson Residual
 
-To measure the deviation between observed and expected values:
-R = (Observed - Expected) / sqrt(Expected)
+To measure how far observed values deviate from expected values:
 
+\[
+R = \frac{O - E}{\sqrt{E}}
+\]
+
+Where:
+- \(O\) = Observed value  
+- \(E\) = Expected value  
 
 ---
 
 ## 📊 Chi-Square Statistic
 
-The Chi-Square value is calculated as:
+The Chi-Square statistic is computed as:
 
-X^2 = Σ (R^2)
+\[
+X^2 = \sum R^2
+\]
 
-This represents the total deviation across all categories.
+It measures the **total deviation** between observed and expected frequencies.
 
 ---
 
 ## 🎯 Degrees of Freedom
 
 Degrees of freedom (df) are calculated as:
-df = (rows - 1) * (columns - 1)
 
+\[
+df = (\text{rows} - 1) \times (\text{columns} - 1)
+\]
 
 ### ✅ In this example:
-- Rows = 3 (Headlines A, B, C)  
-- Columns = 2 (Click / No Click)  
+- Rows = 3 (A, B, C)
+- Columns = 2 (Click / No Click)
 
+\[
+df = (3 - 1)(2 - 1) = 2
+\]
 
 ---
 
 ## 🧠 Why Degrees of Freedom Matter
 
-- Determines the **shape of the Chi-Square distribution**
-- Used to calculate the **p-value**
-- Helps decide if the result is **statistically significant**
+- Determines the shape of the Chi-Square distribution  
+- Used to compute the **p-value**  
+- Helps assess statistical significance  
 
 ---
 
 ## 🔁 Randomization (Simulation Idea)
 
-To validate results:
+To validate the test:
 
 1. Shuffle the data randomly  
 2. Redistribute clicks across headlines  
-3. Recalculate X² multiple times  
-4. Compare with the observed X²  
+3. Recalculate \( X^2 \)  
+4. Repeat many times  
+5. Compare observed \( X^2 \) with simulated values  
 
-👉 If the observed value is much larger than random values → **Significant**
-
----
-
-## 🧾 Final Decision
-
-After computing the Chi-Square value:
-
-- Compare with critical value (based on df)  
-- Or compute the **p-value**
-
-### 📌 Rule:
-- **p-value < 0.05** → Significant difference ✅  
-- **p-value ≥ 0.05** → Not significant ❌  
+👉 If observed \( X^2 \) is much larger → result is significant
 
 ---
 
-```
+## 🧾 Python Implementation
+
+```python
 from scipy.stats import chi2_contingency
 
 contingency_table = pd.crosstab(data['Sex'], data['Survived'])
-chi2, p, dof, expected=chi2_contingency(contingency_table)
 
+chi2, p, dof, expected = chi2_contingency(contingency_table)
 
-print('Chi2',chi2,end='\n')
-print('p_value',p,end='\n')
-print('dof',dof,end='\n')
+print('Chi2:', chi2)
+print('p-value:', p)
+print('dof:', dof)
+print('expected:\n', expected)
 
-print('expected',expected,end='\n')
-print("H0 is Rejected ?",p<0.05)
-```
-```
-'''output:
-Chi2 260.71702016732104
-p_value 1.1973570627755645e-58
-dof 1
-expected [[193.47474747 120.52525253]
+print("Reject H0?", p < 0.05)
+
+Chi2: 260.71702016732104
+p_value: 1.1973570627755645e-58
+dof: 1
+
+expected:
+[[193.47474747 120.52525253]
  [355.52525253 221.47474747]]
-H0 is Rejected ? True'''
-```
 
-## 🚀 Summary
-
-- Used for **categorical A/B testing**
-- Compares **observed vs expected frequencies**
-- Key components:
-  - Pearson Residual
-  - Chi-Square Statistic
-  - Degrees of Freedom
-- Helps determine if results are **real or random**
-
-
+H0 is Rejected ? True
